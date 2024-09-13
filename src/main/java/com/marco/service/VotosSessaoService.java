@@ -1,6 +1,7 @@
 package com.marco.service;
 
 import com.marco.entity.VotosSessao;
+import com.marco.entity.VotosSessaoInterface;
 import com.marco.exception.ValidationException;
 import com.marco.repository.VotosSessaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +45,13 @@ public class VotosSessaoService {
 
         return repository.save(votos);
     }
-    public long qtdVotos(Long sessaoId) {
-        return repository.count(sessaoId);
+    public List<VotosSessaoInterface> getVotos(Long sessaoId) {
+        return repository.findVotos(sessaoId);
     }
+    public long getTotal(Long sessaoId) {
+        return repository.findTotal(sessaoId);
+    }
+
     public List<VotosSessao> getAll() { return repository.findAll(); }
 
 }

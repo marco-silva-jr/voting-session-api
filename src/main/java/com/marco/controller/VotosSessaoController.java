@@ -1,12 +1,17 @@
 package com.marco.controller;
 
 import com.marco.entity.VotosSessao;
+import com.marco.entity.VotosSessaoInterface;
 import com.marco.service.VotosSessaoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class VotosSessaoController {
 
     private final VotosSessaoService service;
+    private static final String ERROR = "error";
 
     @Autowired
     public VotosSessaoController(VotosSessaoService service) {
@@ -23,27 +29,35 @@ public class VotosSessaoController {
 
     @CrossOrigin
     @PostMapping("/votar")
-    public ResponseEntity<?> save(@RequestBody VotosSessao votos) {
+    public ResponseEntity<Object> save(@RequestBody VotosSessao votos) {
         try {
             // Salva o voto do associado
             VotosSessao created = service.save(votos);
             return new ResponseEntity<>(created, HttpStatus.CREATED);
         } catch (Exception e) {
             log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of(ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @CrossOrigin
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<Object> getById(@PathVariable("id") Long id) {
         try {
             // Busca a quantidade de votos por id de sessão
-            Long qtd = service.qtdVotos(id);
-            return new ResponseEntity<>(qtd, HttpStatus.OK);
+            List<VotosSessaoInterface> votos = service.getVotos(id);
+            long total = service.getTotal(id);
+
+            // Cria um objeto de resposta para encapsular votos e total
+            Map<String, Object> response = new HashMap<>();
+            response.put("votos", votos);
+            response.put("totalGeral", total);
+            response.put("sessao", id);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error(e.getMessage());
+            return new ResponseEntity<>(Map.of(ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

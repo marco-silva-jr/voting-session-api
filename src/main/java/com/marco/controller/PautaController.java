@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.*;
 import com.marco.service.PautaService;
 
 import java.util.List;
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/pauta")
 public class PautaController {
 
     private final PautaService service;
+    private static final String ERROR = "error";
 
     @Autowired
     public PautaController(PautaService service) {
@@ -23,20 +26,20 @@ public class PautaController {
 
     @CrossOrigin
     @PostMapping("/salvar")
-    public ResponseEntity<?> save(@RequestBody Pauta pauta) {
+    public ResponseEntity<Object> save(@RequestBody Pauta pauta) {
         try {
             // Salvar nova pauta
             Pauta created = service.save(pauta);
             return new ResponseEntity<>(created, HttpStatus.CREATED);
         } catch (Exception e) {
             log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of(ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @CrossOrigin
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<Object> getById(@PathVariable("id") Long id) {
         try {
             // Buscar pauta pelo id
             Pauta pauta = service.getById(id);
@@ -47,13 +50,13 @@ public class PautaController {
             }
         } catch (Exception e) {
             log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of(ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @CrossOrigin
     @GetMapping("")
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<Object> getAll() {
         try {
             List<Pauta> list = service.getAll();
             if (list.isEmpty()) {
@@ -63,9 +66,7 @@ public class PautaController {
             }
         } catch (Exception e) {
             log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of(ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }
