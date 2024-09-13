@@ -22,11 +22,8 @@ public class SessaoService {
         if (sessao.getPauta() == null || sessao.getPauta().getDescricao() == null || sessao.getPauta().getDescricao().trim().isEmpty()) {
             throw new ValidationException("A descrição da pauta não pode ser nula ou vazia.");
         }
-        if (sessao.getId() != null) {
-            Sessao exists = repository.getById(sessao.getId());
-            if (exists != null) {
-                throw new ValidationException("Sessão: " + sessao.getId() + " já foi aberta!");
-            }
+        if (sessao.getId() == null) {
+            throw new ValidationException("Sessão já foi aberta!");
         }
         return repository.save(sessao);
     }
